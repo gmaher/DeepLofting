@@ -462,6 +462,49 @@ def validSurface(pd):
 	else:
 		return True
 
+def VTKNumpytoSP(img_):
+    img = img_.T
+
+    H,W = img.shape
+
+    sp = vtk.vtkStructuredPoints()
+    sp.SetDimensions(H,W,1)
+    sp.AllocateScalars(10,1)
+    for i in range(H):
+        for j in range(W):
+            v = img[i,j]
+            sp.SetScalarComponentFromFloat(i,j,0,0,v)
+
+    return sp
+
+def marchingSquares(img, iso=0.0, mode='all'):
+    s = img.shape
+    alg = vtk.vtkMarchingSquares()
+
+    sp = VTKNumpytoSP(img)
+
+    alg.SetInputData(sp)
+    alg.SetValue(0,iso)
+    alg.Update()
+    pds = alg.GetOutput()
+
+    a = vtk.vtkPolyDataConnectivityFilter()
+    a.SetInputData(pds)
+
+    if mode=='center':
+        a.SetExtractionModeToClosestPointRegion()
+        a.SetClosestPoint(float(s[0])/2,float(s[1])/2,0.0)
+
+    elif mode=='all':
+        a.SetExtractionModeToAllRegions()
+
+    a.Update()
+    pds = a.GetOutput()
+
+    pds = VTKPDPointstoNumpy(pds)
+
+    return pds
+
 def VTKSPtoNumpy(vol):
     '''
     Utility function to convert a VTK structured points (SP) object to a numpy array
@@ -495,7 +538,7 @@ def VTKSPtoNumpy(vol):
     exporter.SetExportVoidPointer(s)
     exporter.Export()
     a = np.reshape(np.fromstring(s,dtype),(dims[2],dims[0],dims[1]))
-    return a
+    return a[0]
 
 def VTKSPtoNumpyFromFile(fn):
 	'''
