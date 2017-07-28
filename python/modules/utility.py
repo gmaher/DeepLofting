@@ -1104,6 +1104,19 @@ def eccentricity(contour):
 	dmin = np.min(dists)
 	return dmin/dmax
 
+def crop_center(img,cropx,cropy):
+    y,x = img.shape
+    startx = x//2-(cropx//2)
+    starty = y//2-(cropy//2)
+    return img[starty:starty+cropy,startx:startx+cropx]
+
+def crop_center_nd(img,cropx,cropy):
+    s = img.shape
+    startx = s[1]//2-(cropx//2)
+    starty = s[2]//2-(cropy//2)
+    return img[:,starty:starty+cropy,startx:startx+cropx]
+
+
 def threshold(x,value):
 	'''
 	sets all values below value to 0 and above to 1
