@@ -71,7 +71,7 @@ def fullyConnected(x,output_units=100,activation=tf.identity,std=1e-3,
         b = tf.get_variable("b",shape=shape[1],initializer=tf.random_normal_initializer(0.0,std))
 
         h = tf.matmul(x,W)+b
-        a = activation(h, name='a')
+        a = activation(h)
         return a
 
 def repeat(x,axis,repeat):

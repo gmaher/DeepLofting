@@ -501,9 +501,12 @@ def marchingSquares(img, iso=0.0, mode='all'):
     a.Update()
     pds = a.GetOutput()
 
-    pds = VTKPDPointstoNumpy(pds)
+    if pds.GetPoints() is None:
+        return np.asarray([0.0])
+    else:
+        pds = VTKPDPointstoNumpy(pds)
 
-    return pds
+        return pds
 
 def VTKSPtoNumpy(vol):
     '''
@@ -1116,6 +1119,33 @@ def crop_center_nd(img,cropx,cropy):
     starty = s[2]//2-(cropy//2)
     return img[:,starty:starty+cropy,startx:startx+cropx]
 
+from scipy.ndimage.interpolation import map_coordinates
+from scipy.ndimage.filters import gaussian_filter
+
+def elastic_transform(images, alpha, sigma, random_state=None):
+    """Elastic deformation of images as described in [Simard2003]_.
+    .. [Simard2003] Simard, Steinkraus and Platt, "Best Practices for
+       Convolutional Neural Networks applied to Visual Document Analysis", in
+       Proc. of the International Conference on Document Analysis and
+       Recognition, 2003.
+    """
+    assert len(images[0].shape)==2
+
+    if random_state is None:
+        random_state = np.random.RandomState(None)
+
+    shape = images[0].shape
+
+    dx = gaussian_filter((random_state.rand(*shape) * 2 - 1), sigma, mode="constant", cval=0) * alpha
+    dy = gaussian_filter((random_state.rand(*shape) * 2 - 1), sigma, mode="constant", cval=0) * alpha
+
+    x, y = np.meshgrid(np.arange(shape[0]), np.arange(shape[1]), indexing='ij')
+    indices = np.reshape(x+dx, (-1, 1)), np.reshape(y+dy, (-1, 1))
+
+    rets = []
+    for im in images:
+        rets.append(map_coordinates(im, indices, order=1).reshape(shape))
+    return rets
 
 def threshold(x,value):
 	'''
