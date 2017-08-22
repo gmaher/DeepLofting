@@ -192,6 +192,33 @@ def normalizeContour(c,p,t,tx):
     #print '{}\n{}\n{}\n{}\n{}\n{}\n{}\n'.format(p,t,tx,ty,c,c_p,res)
     return res
 
+def interpContour(c,num_pts=15, k=3):
+    angles = np.arctan2(c[:,1],c[:,0])
+    angles = angles/np.pi
+    bbox = [-1.0,1.0]
+    
+    delta = 2.0/num_pts
+    new_angles = np.arange(-1.0,1.0,delta)
+    inds = angles.argsort()
+    angles=angles[inds]
+    x = c[:,0]
+    y = c[:,1]
+    x = x[inds]
+    y = y[inds]
+
+    angles = np.r_[angles[-1]-2*np.pi, angles, angles[0]+2*np.pi]
+    x = np.r_[x[-1],x,x[0]]
+    y = np.r_[y[-1],y,y[0]]
+    
+    x_spline = scipy.interpolate.UnivariateSpline(angles,x,s=0,k=k)
+    y_spline = scipy.interpolate.UnivariateSpline(angles,y,s=0,k=k)
+    
+    new_c = np.zeros((num_pts,2))
+    new_c[:,0] = x_spline(new_angles)
+    new_c[:,1] = y_spline(new_angles)
+    return new_c.copy()
+   
+
 def groupsToPoints(folder):
     files = os.listdir(folder)
     groups = []
