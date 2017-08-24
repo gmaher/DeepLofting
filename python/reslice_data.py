@@ -46,9 +46,12 @@ mr_test = [i.replace('\n','') for i in mr_test]
 
 def normalize_grps(grp_dict,path_info):
     norm_grps = []
+    print len(path_info)
+    print grp_dict.keys()
     for i in sorted(grp_dict.keys()):
 
-            vecs = path_info[i-1]
+#             vecs = path_info[i]
+            vecs = grp_dict[i]['points']
             p = vecs[:3]
             t = vecs[3:6]
             tx= vecs[6:]
@@ -104,12 +107,14 @@ def get_all_lofted_segs(path, grp_fn, dims, spacing):
     processed_grps = []
     for grp_id in path.keys():
         grp = path[grp_id]['name']
-
+        print grp
         if os.path.exists(grp_fn+'/'+grp):
 
             path_info = path[grp_id]['points']
 
             grp_dict = utility.parseGroupFile(grp_fn+'/'+grp)
+
+            if np.amax(grp_dict.keys()) >= len(path_info): continue
 
             norm_grps = normalize_grps(grp_dict,path_info)
 
@@ -130,7 +135,7 @@ def get_all_lofted_segs(path, grp_fn, dims, spacing):
 
                 total_segs += segs
 
-    return total_segs,lofted_grps, processed_grps
+    return total_segs,total_groups, processed_grps
 
 output_dir = "/media/marsdenlab/Data2/datasets/DeepLofting/"
 ext = [191, 191]
