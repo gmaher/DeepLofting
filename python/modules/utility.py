@@ -29,6 +29,135 @@ import tensorflow as tf
 from skimage.filters import gaussian
 from skimage.segmentation import active_contour
 
+def reorder_contour(c):
+    N = len(c)
+
+    even_inds = np.arange(0,N,2)
+    odd_inds = np.arange(1,N,2)
+
+    even_points = np.asarray([c[i] for i in even_inds])
+    odd_points = np.asarray([c[i] for i in odd_inds])
+
+    N_even = len(even_points)
+    ret = np.zeros_like(c)
+    ret[:N_even] = even_points
+    ret[N_even:] = np.flipud(odd_points)
+    ret = ret[:-2]
+    return ret.copy()
+
+def gen_groups(test_images,
+               batch_seg,
+               norm,
+               ext,
+               DIMS,
+               ISOVALUE,
+               NUM_MODES,
+               CROP_DIMS,
+               code,
+               dir_):
+
+    for IMAGE_NUMBER in range(0,len(test_images)):
+
+        im_str,truth_str,path_str,grp_str = test_images[IMAGE_NUMBER]
+        print im_str
+
+        im_name = truth_str.split('/')[-2]
+
+        pred_dir = dir_+'/{}_{}'.format(im_name,code)
+        mkdir(pred_dir)
+
+        reader = vtk.vtkMetaImageReader()
+        reader.SetFileName(im_str)
+        reader.Update()
+
+        im = reader.GetOutput()
+        im = resample_image(im)
+
+        spacing = im.GetSpacing()
+        print spacing
+        grp_files = os.listdir(grp_str)
+
+        group_dict = parseGroupFile(grp_str+'/'+grp_files[0])
+
+        path_dict = parsePathFile(path_str)
+
+        origin = [-spacing[0]*DIMS[0]/2,spacing[1]*DIMS[1]/2]
+
+        for grpid in path_dict.keys():
+            print path_dict[grpid]['name']
+            tmpimages = []
+            pts = path_dict[grpid]['points']
+            for v in pts:
+                i =getImageReslice(im,ext,v[:3],v[3:6],v[6:9], True)
+                tmpimages.append(i)
+
+            tmpimages = np.asarray(tmpimages)[:,:,:,np.newaxis]
+            tmpimages = norm(tmpimages,im)
+
+            pred_segs = batch_seg(tmpimages,CROP_DIMS)
+
+            contours = [marchingSquares(seg[:,:,0],iso=ISOVALUE,mode='center') for seg in pred_segs]
+
+            contours = [(c[:,:2]-np.array(DIMS)/2)*spacing[:2] for c in contours]
+            contours = [reorder_contour(c) for c in contours]
+
+            grp_name = path_dict[grpid]['name']
+            f = open('{}/{}'.format(pred_dir,grp_name),'w')
+
+            for i in range(0,len(pts),3):
+                v = pts[i]
+                c = contours[i]
+
+                c = smoothContour(c,NUM_MODES)
+                c = denormalizeContour(c,v[:3],v[3:6],v[6:9])
+
+                if len(c) > 1:
+                    f.write('/group/{}/{}\n'.format(grp_name,i))
+                    f.write(str(i)+'\n')
+
+                    f.write('posId {}\n'.format(i))
+
+                    for p in c:
+                        f.write('{} {} {}\n'.format(p[0],p[1],p[2]))
+
+                    f.write('\n')
+
+            f.close()
+
+            #group contents file
+            f = open(pred_dir+'/group_contents.tcl','w')
+            f.write("""# geodesic_groups_file 2.1
+            #
+            # Group Stuff
+            #
+
+            proc group_autoload {} {
+            global gFilenames
+            set grpdir $gFilenames(groups_dir)\n""")
+
+            for gid in path_dict.keys():
+                p = path_dict[gid]['name']
+                f.write('   group_readProfiles {'+p+'} [file join $grpdir {'+p+'}]\n')
+
+            f.write('}')
+            f.close()
+
+def resample_image(vtk_im):
+    resample = vtk.vtkImageResample();
+    spacing = vtk_im.GetSpacing()
+    origin_ = vtk_im.GetOrigin()
+
+    min_ = np.amin(spacing)
+
+    resample.SetInputData(vtk_im)
+    for i in range(3):
+        resample.SetAxisOutputSpacing(i,min_)
+    resample.Update()
+    o = resample.GetOutput()
+    # o.SetSpacing([min_,min_,min_])
+    # o.SetOrigin(origin_)
+    return resample.GetOutput()
+
 def mkdir(fn):
     if not os.path.exists(os.path.abspath(fn)):
         os.mkdir(os.path.abspath(fn))
@@ -196,7 +325,7 @@ def interpContour(c,num_pts=15, k=3):
     angles = np.arctan2(c[:,1],c[:,0])
     angles = angles/np.pi
     bbox = [-1.0,1.0]
-    
+
     delta = 2.0/num_pts
     new_angles = np.arange(-1.0,1.0,delta)
     inds = angles.argsort()
@@ -206,18 +335,18 @@ def interpContour(c,num_pts=15, k=3):
     x = x[inds]
     y = y[inds]
 
-    angles = np.r_[angles[-1]-2*np.pi, angles, angles[0]+2*np.pi]
+    angles = np.r_[angles[-1]-2, angles, angles[0]+2]
     x = np.r_[x[-1],x,x[0]]
     y = np.r_[y[-1],y,y[0]]
-    
+
     x_spline = scipy.interpolate.UnivariateSpline(angles,x,s=0,k=k)
     y_spline = scipy.interpolate.UnivariateSpline(angles,y,s=0,k=k)
-    
+
     new_c = np.zeros((num_pts,2))
     new_c[:,0] = x_spline(new_angles)
     new_c[:,1] = y_spline(new_angles)
     return new_c.copy()
-   
+
 
 def groupsToPoints(folder):
     files = os.listdir(folder)
@@ -529,10 +658,11 @@ def marchingSquares(img, iso=0.0, mode='all'):
     pds = a.GetOutput()
 
     if pds.GetPoints() is None:
-        return np.asarray([0.0])
+        return np.asarray([[0.0,0.0],[0.0,0.0]])
     else:
         pds = VTKPDPointstoNumpy(pds)
-
+        if len(pds) <= 1:
+            return np.asarray([[0.0,0.0],[0.0,0.0]])
         return pds
 
 def VTKSPtoNumpy(vol):
@@ -953,30 +1083,57 @@ def writeAllImageSlices(imgfn,pathfn,ext,output_dir):
         writer.Update()
         writer.Write()
 
+# def contourToSeg(contour, origin, dims, spacing):
+#     '''
+#     Converts an ordered set of points to a segmentation
+#     (i.e. fills the inside of the contour), uses the point in polygon method
+#
+#     args:
+#     	@a contour: numpy array, shape = (num points, 2), ordered list of points
+#     	forming a closed contour
+#     	@a origin: The origin of the image, corresponds to top left corner of image
+#     	@a dims: (xdims,ydims) dimensions of the image corresponding to the segmentation
+#     	@a spacing: the physical size of each pixel
+#     '''
+#     #print contour
+#     poly = Polygon(contour)
+#     seg = np.zeros((int(dims[0]),int(dims[1])))
+#
+#     for j in range(0,int(dims[0])):
+#         for i in range(0,int(dims[1])):
+#             x = origin[0] + (j)*spacing[0]
+#             y = origin[1] - (i)*spacing[1]
+#             p = Point(x,y)
+#
+#             if poly.contains(p):
+#                 seg[i,j] = 1
+#     return seg
+
+from skimage.measure import grid_points_in_poly
 def contourToSeg(contour, origin, dims, spacing):
-	'''
-	Converts an ordered set of points to a segmentation
-	(i.e. fills the inside of the contour), uses the point in polygon method
+    '''
+    Converts an ordered set of points to a segmentation
+    (i.e. fills the inside of the contour), uses the point in polygon method
 
-	args:
-		@a contour: numpy array, shape = (num points, 2), ordered list of points
-		forming a closed contour
-		@a origin: The origin of the image, corresponds to top left corner of image
-		@a dims: (xdims,ydims) dimensions of the image corresponding to the segmentation
-		@a spacing: the physical size of each pixel
-	'''
-	poly = Polygon(contour)
-	seg = np.zeros((int(dims[0]),int(dims[1])))
+    args:
+    	@a contour: numpy array, shape = (num points, 2), ordered list of points
+    	forming a closed contour
+    	@a origin: The origin of the image, corresponds to top left corner of image
+    	@a dims: (xdims,ydims) dimensions of the image corresponding to the segmentation
+    	@a spacing: the physical size of each pixel
+    '''
+    #print contour
+    dims_ = (int(dims[0]),int(dims[1]))
+    d = np.asarray([float(dims[0])/2,float(dims[1])/2])
 
-	for j in range(0,int(dims[0])):
-	    for i in range(0,int(dims[1])):
-	        x = origin[0] + (j+0.5)*spacing[0]
-	        y = origin[1] + (i+0.5)*spacing[1]
-	        p = Point(x,y)
+    seg = np.zeros(dims_)
 
-	        if poly.contains(p):
-	            seg[i,j] = 1
-	return seg
+    origin_ = np.asarray([origin[0],origin[1]])
+    spacing_ = np.asarray([spacing[0],spacing[1]])
+    a = grid_points_in_poly(dims_,
+        (contour[:,:2]-origin_)/spacing_+d)
+    seg[a] = 1.0
+    return np.flipud(seg.T)
 
 def segToContour(segmentation, origin=[0.0,0.0], spacing=[1.0,1.0], isovalue=0.5):
     '''
@@ -1236,7 +1393,7 @@ def areaOverlapError(truth, edge):
     t = Polygon(truth_tups)
     e = Polygon(edge_tups)
     if not (e.is_valid and t.is_valid):
-    	print "invalid geometry, error = 1.0"
+    	#print "invalid geometry, error = 1.0"
     	return 1.0
     Aunion = e.union(t).area
     Aintersection = e.intersection(t).area
@@ -1319,6 +1476,43 @@ def confusionMatrix(ytrue,ypred, as_fraction=True):
 		totals = totals.reshape((-1,1))
 		H = H/(totals+1e-6)
 		return np.around(H,2)
+
+def get_pds_from_files(folder):
+    files = os.listdir(d)
+
+    pds = []
+    for f in files:
+        #print f
+        reader = vtk.vtkPolyDataReader()
+        reader.SetFileName(d+'/'+f)
+        reader.Update()
+        o_pd = reader.GetOutput()
+        pds.append(o_pd)
+
+    return pds
+
+def merge_pds(pd_list):
+    assembler = vtk.vtkAppendPolyData()
+
+    for p in pds:
+        assembler.AddInputData(p)
+
+    assembler.Update()
+
+    final_pd = assembler.GetOutput()
+
+    return final_pd
+
+def merge_pds_folder(folder):
+    pds = get_pds_from_files(folder)
+    mpd = merge_pds(pds)
+    return mpd
+
+def write_pd(pd,fn):
+    writer = vtk.vtkPolyDataWriter()
+    writer.SetFileName(fn)
+    writer.SetInputData(pd)
+    writer.Write()
 
 def pd_to_numpy_vol(pd, spacing=[1.,1.,1.], shape=None, origin=None, foreground_value=255, backgroud_value = 0):
     if shape is None:

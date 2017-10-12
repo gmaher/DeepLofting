@@ -50,11 +50,11 @@ def normalize_grps(grp_dict,path_info):
     print grp_dict.keys()
     for i in sorted(grp_dict.keys()):
 
-#             vecs = path_info[i]
-            vecs = grp_dict[i]['points']
-            p = vecs[:3]
-            t = vecs[3:6]
-            tx= vecs[6:]
+            vecs = path_info[i]
+            vecs_g = grp_dict[i]['points']
+            p = vecs_g[:3]
+            t = vecs_g[3:6]
+            tx= vecs_g[6:]
             c = grp_dict[i]['contour']
 
             contour_norm = utility.normalizeContour(c,p,t,tx)
@@ -67,7 +67,7 @@ def reinterp_grps(grps_list, num_pts=20):
     ]
     return reinterp_list
 
-def loft_path(grps_list, grp_points, num_new_points, k=3):
+def loft_path(grps_list, grp_points, num_new_points, k=1):
     """
     Note grp_points and path_points should be sorted
     """
@@ -75,7 +75,7 @@ def loft_path(grps_list, grp_points, num_new_points, k=3):
     ysplines = []
 
     gpts = np.asarray(grp_points)
-    gpts = 1.0*gpts/np.amax(gpts)
+    gpts = 1.0*gpts/num_new_points
 
     d = 1.0/num_new_points
     ppts = np.arange(0,1,d)
@@ -86,8 +86,8 @@ def loft_path(grps_list, grp_points, num_new_points, k=3):
         x = [g[i,0] for g in grps_list]
         y = [g[i,1] for g in grps_list]
 
-        x_s = UnivariateSpline(gpts,x,k=k)
-        y_s = UnivariateSpline(gpts,y,k=k)
+        x_s = UnivariateSpline(gpts,x,k=k,s=0)
+        y_s = UnivariateSpline(gpts,y,k=k,s=0)
 
         xsplines.append(x_s)
         ysplines.append(y_s)
@@ -113,7 +113,8 @@ def get_all_lofted_segs(path, grp_fn, dims, spacing):
             path_info = path[grp_id]['points']
 
             grp_dict = utility.parseGroupFile(grp_fn+'/'+grp)
-
+            if len(grp_dict.keys()) == 0: continue
+            print np.amax(grp_dict.keys()), len(path_info)
             if np.amax(grp_dict.keys()) >= len(path_info): continue
 
             norm_grps = normalize_grps(grp_dict,path_info)
@@ -128,7 +129,7 @@ def get_all_lofted_segs(path, grp_fn, dims, spacing):
 
                 total_groups += lofted_grps
 
-                origin = [-spacing[0]*dims[0]/2,-spacing[1]*dims[1]/2]
+                origin = [-spacing[0]*dims[0]/2,spacing[1]*dims[1]/2]
 
                 segs = [utility.contourToSeg(c,origin,dims,spacing) for c in
                        lofted_grps]
@@ -136,6 +137,18 @@ def get_all_lofted_segs(path, grp_fn, dims, spacing):
                 total_segs += segs
 
     return total_segs,total_groups, processed_grps
+
+def resample_image(vtk_im):
+    resample = vtk.vtkImageResample();
+    spacing = vtk_im.GetSpacing()
+
+    min_ = np.amin(spacing)
+
+    resample.SetInputData(vtk_im)
+    for i in range(3):
+        resample.SetAxisOutputSpacing(i,min_)
+    resample.Update()
+    return resample.GetOutput()
 
 output_dir = "/media/marsdenlab/Data2/datasets/DeepLofting/"
 ext = [191, 191]
@@ -148,9 +161,9 @@ def ct_norm(x):
     return (1.0*x+1000)/(2000)
 
 def mr_norm(x):
-    x = np.log(1.0*x-np.amin(x)+1)
+    #x = np.log(1.0*x-np.amin(x)+1)
     m = np.amin(x)
-    x = (x-m)/(np.amax(x)-m)
+    x = (1.0*x-m)/(np.amax(x)-m)
     return x
 
 def image_reader(fn_tup):
@@ -164,6 +177,7 @@ def image_reader(fn_tup):
     reader.SetFileName(img_fn)
     reader.Update()
     the_image = reader.GetOutput()
+    the_image = resample_image(the_image)
 
     model = truth_fn
     model_name = model.split('/')[-2]
@@ -173,12 +187,13 @@ def image_reader(fn_tup):
     reader2.SetFileName(model)
     reader2.Update()
     the_model = reader2.GetOutput()
+    the_model = resample_image(the_model)
 
     path_dict = utility.parsePathFile(path_fn)
 
     return (the_image,the_model,path_dict,grp_fn)
 
-def process_image(data_tup, f_x, f_y, f_c, normalizer):
+def process_image(data_tup, f_x, f_y, f_c, meta, normalizer):
     the_image, the_model, path_dict, grp_fn = data_tup
 
     spacing = the_image.GetSpacing()
@@ -199,21 +214,63 @@ def process_image(data_tup, f_x, f_y, f_c, normalizer):
             for v in path_dict[p]['points']:
                 i =utility.getImageReslice(the_image,ext,v[:3],v[3:6],v[6:9], True)
                 tmpimages.append(i)
+    if len(tmpimages) > 0:
+        tmpimages = np.asarray(tmpimages)[:,:,:,np.newaxis]
+        tmpsegs = np.asarray(tmpsegs)[:,:,:,np.newaxis]
+        lofted_grps = np.asarray(lofted_grps)
+        print tmpimages.shape, tmpsegs.shape
 
-    tmpimages = np.asarray(tmpimages)[:,:,:,np.newaxis]
-    tmpsegs = np.asarray(tmpsegs)[:,:,:,np.newaxis]
-    lofted_grps = np.asarray(lofted_grps)
-    print tmpimages.shape, tmpsegs.shape
+
 #     tmpimages = np.transpose(tmpimages,axes=(0,2,3,1))
 #     tmpsegs = np.transpose(tmpsegs,axes=(0,2,3,1))
 
-    tmpimages = normalizer(tmpimages)
-    tmpsegs = 1.0*tmpsegs/np.amax(tmpsegs)
-    inds = [i for i in range(len(tmpimages)) if np.sum(tmpsegs[i])>0]
-    print tmpimages.shape
-    f_x.append(tmpimages[inds])
-    f_y.append(tmpsegs[inds])
-    f_c.append(lofted_grps)
+        tmpimages = normalizer(tmpimages)
+        tmpsegs = 1.0*tmpsegs/np.amax(tmpsegs)
+        inds = [i for i in range(len(tmpimages)) if np.sum(tmpsegs[i])>0]
+        print tmpimages.shape
+        META = np.zeros((len(inds),2))
+        META[:] = spacing[:2]
+        print META[:10]
+        print META.shape
+        f_x.append(tmpimages[inds])
+        f_y.append(tmpsegs[inds])
+        f_c.append(lofted_grps)
+        meta.append(META)
+
+def get_image(data_tup, normalizer):
+    the_image, the_model, path_dict, grp_fn = data_tup
+
+    spacing = the_image.GetSpacing()
+    dims = the_image.GetDimensions()
+    origin = [-ext[0]*spacing[0]/2,ext[1]*spacing[1]/2]
+    minmax = the_image.GetScalarRange()
+
+    #tmpimages = utility.getAllImageSlices(the_image, path_dict, ext, True)
+    #tmpsegs = utility.getAllImageSlices(the_model, path_dict, ext, True)
+
+    tmpsegs, lofted_grps, grp_names = get_all_lofted_segs(path_dict,grp_fn,DIMS,spacing)
+
+    tmpimages = []
+    for p in path_dict.keys():
+        grp = path_dict[p]['name']
+        if os.path.exists(grp_fn+'/'+grp) and any([grp == g for g in grp_names]):
+            print 'grp {} exists, getting images'.format(grp)
+            for v in path_dict[p]['points']:
+                i =utility.getImageReslice(the_image,ext,v[:3],v[3:6],v[6:9], True)
+                tmpimages.append(i)
+    if len(tmpimages) > 0:
+        tmpimages = np.asarray(tmpimages)[:,:,:,np.newaxis]
+        tmpsegs = np.asarray(tmpsegs)[:,:,:,np.newaxis]
+        lofted_grps = np.asarray(lofted_grps)
+        print tmpimages.shape, tmpsegs.shape
+#     tmpimages = np.transpose(tmpimages,axes=(0,2,3,1))
+#     tmpsegs = np.transpose(tmpsegs,axes=(0,2,3,1))
+
+        tmpimages = normalizer(tmpimages)
+        tmpsegs = 1.0*tmpsegs/np.amax(tmpsegs)
+        inds = [i for i in range(len(tmpimages)) if np.sum(tmpsegs[i])>0]
+
+        return tmpimages[inds], tmpsegs[inds], lofted_grps
 
 def images_to_hdf5(image_list,
                    reader, post_processor, normalizer,shape, label_shape, dtype, label_dtype,
@@ -253,11 +310,16 @@ def images_to_hdf5(image_list,
                                      filters=filters,
                                      expectedrows=EXPECTED_ROWS)
 
+    meta = hdf5_file.create_earray(hdf5_file.root,'meta',
+                                  tables.Atom.from_dtype(label_dtype),
+                                  shape=[0,2],
+                                     filters=filters,
+                                     expectedrows=EXPECTED_ROWS)
     for i in range(len(image_list)):
         print 'image {}'.format(i)
         data_tuple = reader(image_list[i])
 
-        post_processor(data_tuple,data_storage,label_storage,c_storage,normalizer)
+        post_processor(data_tuple,data_storage,label_storage,c_storage,meta,normalizer)
 
     hdf5_file.close()
 
@@ -304,21 +366,21 @@ print "test"
 print ct_test_tups
 
 
-d = np.dtype(np.float16)
-images_to_hdf5(ct_train_tups,
-                   image_reader,
-                   process_image, ct_norm, (ext[0]+1,ext[0]+1,1), (ext[0]+1,ext[1]+1,1), d, d,
-                   train_ct)
-
-images_to_hdf5(ct_val_tups,
-                   image_reader,
-                   process_image, ct_norm, (ext[0]+1,ext[1]+1,1), (ext[0]+1,ext[1]+1,1),d, d,
-                   val_ct)
-
-images_to_hdf5(ct_test_tups,
-                   image_reader,
-                   process_image, ct_norm, (ext[0]+1,ext[1]+1,1), (ext[0]+1,ext[1]+1,1), d, d,
-                   test_ct)
+# d = np.dtype(np.float16)
+# images_to_hdf5(ct_train_tups,
+#                    image_reader,
+#                    process_image, ct_norm, (ext[0]+1,ext[0]+1,1), (ext[0]+1,ext[1]+1,1), d, d,
+#                    train_ct)
+#
+# images_to_hdf5(ct_val_tups,
+#                    image_reader,
+#                    process_image, ct_norm, (ext[0]+1,ext[1]+1,1), (ext[0]+1,ext[1]+1,1),d, d,
+#                    val_ct)
+#
+# images_to_hdf5(ct_test_tups,
+#                    image_reader,
+#                    process_image, ct_norm, (ext[0]+1,ext[1]+1,1), (ext[0]+1,ext[1]+1,1), d, d,
+#                    test_ct)
 
 ##############################################
 

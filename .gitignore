@@ -1,3 +1,10 @@
 /python/data/
 *.pyc
 *.npy
+*.vtp
+*.pdf
+
+/python/pred_groups/
+/images
+/python/models/
+/test/

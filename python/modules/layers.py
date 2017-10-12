@@ -121,6 +121,6 @@ def I2INet(x, nfilters=32, init='xavier', activation=tf.nn.relu):
     o3 = I2INetUpsampleBlock(a2,o4,n1=8*nfilters,n2=4*nfilters,init=init,activation=activation, scope='ublock2')
     o2 = I2INetUpsampleBlock(a1,o3,n1=4*nfilters,n2=nfilters,init=init,activation=activation, scope='ublock3')
 
-    out = conv2D(o2,nfilters=1,activation=tf.nn.sigmoid)
-
-    return out,o3,o4
+    out = conv2D(o2,nfilters=1,activation=tf.identity)
+    out_class = tf.sigmoid(out)
+    return out_class,out,o3,o4
