@@ -439,8 +439,10 @@ proc model_groups {fold} {
 				close $fn
 				#catch {
 				set guiBOOLEANvars(selected_groups) $grp
-				create_model_polydata $grp
-				repos_writeVtkPolyData -file $img.$grp.vtp -obj /models/PolyData/$grp -type ascii
+				catch {
+					create_model_polydata $grp
+					repos_writeVtkPolyData -file $img.$grp.vtp -obj /models/PolyData/$grp -type ascii
+				}
 				#}
 				#set createPREOPgrpKeptSelections [list $grp]
 				#puts [llength $createPREOPgrpKeptSelections]

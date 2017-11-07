@@ -3,8 +3,11 @@
 *.npy
 *.vtp
 *.pdf
-
+*.pkl
+*.mha
 /python/pred_groups/
 /images
 /python/models/
 /test/
+/python/vtp/
+/python/vtp_copy/

@@ -1,0 +1,264 @@
+image 0
+/home/marsdenlab/datasets/vascular_data/OSMSC0004/OSMSC0004-cm.mha /home/marsdenlab/datasets/vascular_data/OSMSC0004/0004_0001/0004_0001-cm.mha
+grp profunda_branch_left exists, getting images
+grp profunda_left exists, getting images
+grp knee_right exists, getting images
+grp profunda_branch_right exists, getting images
+grp anterior_tibial_right exists, getting images
+grp knee_left exists, getting images
+grp anterior_tibial_left exists, getting images
+grp posterior_tibial_right exists, getting images
+grp femoral_right exists, getting images
+grp posterior_tibial_left exists, getting images
+grp femoral_left exists, getting images
+grp aorta_leg_right exists, getting images
+grp celiac exists, getting images
+grp leg_left exists, getting images
+grp renal_right exists, getting images
+grp superior_mesenteric_artery exists, getting images
+grp internal_iliac_right exists, getting images
+grp renal_left exists, getting images
+grp profunda_right exists, getting images
+grp internal_iliac_left exists, getting images
+(1700, 192, 192, 1) (1700, 192, 192, 1)
+(1700, 192, 192, 1)
+[[ 0.0585938  0.0585938]
+ [ 0.0585938  0.0585938]
+ [ 0.0585938  0.0585938]
+ [ 0.0585938  0.0585938]
+ [ 0.0585938  0.0585938]
+ [ 0.0585938  0.0585938]
+ [ 0.0585938  0.0585938]
+ [ 0.0585938  0.0585938]
+ [ 0.0585938  0.0585938]
+ [ 0.0585938  0.0585938]]
+(806, 2)
+image 1
+/home/marsdenlab/datasets/vascular_data/OSMSC0113/OSMSC0113-cm.mha /home/marsdenlab/datasets/vascular_data/OSMSC0113/0113_0003/0113_0003-cm.mha
+grp RCA exists, getting images
+grp N_LCA5 exists, getting images
+grp LCA exists, getting images
+grp N_LCA exists, getting images
+grp LCCA exists, getting images
+grp LSA_b5 exists, getting images
+grp LSA_b3 exists, getting images
+grp LSA_b4 exists, getting images
+grp LSA_b1 exists, getting images
+grp LSA_b2 exists, getting images
+grp LSA exists, getting images
+grp LIMA exists, getting images
+grp RCCA exists, getting images
+grp RSA exists, getting images
+grp RSA_b1 exists, getting images
+grp RSA_b2 exists, getting images
+grp aorta exists, getting images
+grp LCA2 exists, getting images
+(2600, 192, 192, 1) (2600, 192, 192, 1)
+(2600, 192, 192, 1)
+[[ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]]
+(1970, 2)
+image 2
+/home/marsdenlab/datasets/vascular_data/OSMSC0118/OSMSC0118-cm.mha /home/marsdenlab/datasets/vascular_data/OSMSC0118/0118_1000/0118_1000-cm.mha
+grp LPA_012 exists, getting images
+grp LPA_010 exists, getting images
+grp LPA_011 exists, getting images
+grp RPA_015 exists, getting images
+grp RPA_014 exists, getting images
+grp RPA_017 exists, getting images
+grp RPA_016 exists, getting images
+grp RPA_011 exists, getting images
+grp RPA_010 exists, getting images
+grp RPA_013 exists, getting images
+grp RPA_012 exists, getting images
+grp RPA_0081 exists, getting images
+grp LPA_009 exists, getting images
+grp LPA_001 exists, getting images
+grp LPA exists, getting images
+grp LPA_003 exists, getting images
+grp LPA_002 exists, getting images
+grp LPA_005 exists, getting images
+grp LPA_004 exists, getting images
+grp LPA_007 exists, getting images
+grp LPA_006 exists, getting images
+grp LPA2 exists, getting images
+grp LPA_008 exists, getting images
+grp RPA_008 exists, getting images
+grp RPA_009 exists, getting images
+
+grp RPA_002 exists, getting images
+grp RPA_003 exists, getting images
+grp RPA exists, getting images
+grp RPA_001 exists, getting images
+grp RPA_006 exists, getting images
+grp RPA_007 exists, getting images
+grp RPA_004 exists, getting images
+grp RPA_005 exists, getting images
+(4700, 192, 192, 1) (4700, 192, 192, 1)
+(4700, 192, 192, 1)
+[[ 0.0408203  0.0408203]
+ [ 0.0408203  0.0408203]
+ [ 0.0408203  0.0408203]
+ [ 0.0408203  0.0408203]
+ [ 0.0408203  0.0408203]
+ [ 0.0408203  0.0408203]
+ [ 0.0408203  0.0408203]
+ [ 0.0408203  0.0408203]
+ [ 0.0408203  0.0408203]
+ [ 0.0408203  0.0408203]]
+(3657, 2)
+image 3
+/home/marsdenlab/datasets/vascular_data/OSMSC0144/OSMSC0144-cm.mha /home/marsdenlab/datasets/vascular_data/OSMSC0144/0144_1001/0144_1001-cm.mha
+grp IMA exists, getting images
+grp r_in_illiac exists, getting images
+grp l_in_illiac exists, getting images
+(1150, 192, 192, 1) (1150, 192, 192, 1)
+(1150, 192, 192, 1)
+[[ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]]
+(318, 2)
+image 4
+/home/marsdenlab/datasets/vascular_data/OSMSC0148/OSMSC0148-cm.mha /home/marsdenlab/datasets/vascular_data/OSMSC0148/0148_1001/0148_1001-cm.mha
+grp renal_right exists, getting images
+grp SMA exists, getting images
+grp int_iliac_left exists, getting images
+grp IMA exists, getting images
+grp int_iliac_right exists, getting images
+grp renal_left exists, getting images
+grp celiac_splenic exists, getting images
+grp ext_iliac_left exists, getting images
+grp aorta exists, getting images
+grp celiac_hepatic exists, getting images
+(5100, 192, 192, 1) (5100, 192, 192, 1)
+(5100, 192, 192, 1)
+[[ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]
+ [ 0.0546875  0.0546875]]
+(3323, 2)
+image 5
+/home/marsdenlab/datasets/vascular_data/OSMSC0177/OSMSC0177-cm.mha /home/marsdenlab/datasets/vascular_data/OSMSC0177/0177_0000/0177_0000-cm.mha
+grp RCCA exists, getting images
+grp renal_left exists, getting images
+grp IMA exists, getting images
+grp ext_iliac_left exists, getting images
+grp renal_right exists, getting images
+grp RSA exists, getting images
+grp aorta exists, getting images
+grp in_iliac_right exists, getting images
+grp LSA exists, getting images
+grp in_iliac_left exists, getting images
+grp LCCA exists, getting images
+grp celiac_splenic exists, getting images
+grp celiac_hepatic exists, getting images
+grp SMA exists, getting images
+grp dc_1 exists, getting images
+grp disection exists, getting images
+(4950, 192, 192, 1) (4950, 192, 192, 1)
+(4950, 192, 192, 1)
+[[ 0.0679688  0.0679688]
+ [ 0.0679688  0.0679688]
+ [ 0.0679688  0.0679688]
+ [ 0.0679688  0.0679688]
+ [ 0.0679688  0.0679688]
+ [ 0.0679688  0.0679688]
+ [ 0.0679688  0.0679688]
+ [ 0.0679688  0.0679688]
+ [ 0.0679688  0.0679688]
+ [ 0.0679688  0.0679688]]
+(3240, 2)
+image 6
+/home/marsdenlab/datasets/vascular_data/OSMSC0180/OSMSC0180-cm.mha /home/marsdenlab/datasets/vascular_data/OSMSC0180/0180_0000/0180_0000-cm.mha
+grp L_crd exists, getting images
+grp A_com exists, getting images
+grp L_ant exists, getting images
+grp R_vrt exists, getting images
+grp R_com exists, getting images
+grp L_vrt_s exists, getting images
+grp L_vrt_i exists, getting images
+grp R_crd exists, getting images
+grp L_com exists, getting images
+grp R_ant exists, getting images
+grp aneurysm exists, getting images
+(3100, 192, 192, 1) (3100, 192, 192, 1)
+(3100, 192, 192, 1)
+[[ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]
+ [ 0.0390625  0.0390625]]
+(2377, 2)
+image 7
+/home/marsdenlab/datasets/vascular_data/cabg11/cabg11-image.mha /home/marsdenlab/datasets/vascular_data/cabg11/cabg11_all/cabg11_all.mha
+grp rsubcl3 exists, getting images
+grp rsubcl3 exists, getting images
+grp lsubcl3 exists, getting images
+grp lca2_2 exists, getting images
+grp lca2_2_1 exists, getting images
+grp lsubcl2 exists, getting images
+grp lsubcl2_1 exists, getting images
+grp om exists, getting images
+grp om1 exists, getting images
+grp aorta exists, getting images
+grp rcca exists, getting images
+grp lcca exists, getting images
+grp svg1 exists, getting images
+grp rsubcl_new exists, getting images
+grp lca exists, getting images
+grp rca exists, getting images
+grp rca1 exists, getting images
+grp rima exists, getting images
+grp lca2 exists, getting images
+grp rca2 exists, getting images
+grp lca1 exists, getting images
+grp lsubcl1 exists, getting images
+grp lima exists, getting images
+grp rsubcl2 exists, getting images
+grp rsubcl1 exists, getting images
+grp om4 exists, getting images
+grp om3 exists, getting images
+grp om2 exists, getting images
+grp rca1_2 exists, getting images
+grp rca1_1 exists, getting images
+grp rca3 exists, getting images
+(9300, 192, 192, 1) (9300, 192, 192, 1)
+(9300, 192, 192, 1)
+[[ 0.0386719  0.0386719]
+ [ 0.0386719  0.0386719]
+ [ 0.0386719  0.0386719]
+ [ 0.0386719  0.0386719]
+ [ 0.0386719  0.0386719]
+ [ 0.0386719  0.0386719]
+ [ 0.0386719  0.0386719]
+ [ 0.0386719  0.0386719]
+ [ 0.0386719  0.0386719]
+ [ 0.0386719  0.0386719]]
+(4772, 2)
+

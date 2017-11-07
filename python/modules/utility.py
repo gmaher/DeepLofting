@@ -31,7 +31,8 @@ from skimage.segmentation import active_contour
 
 def reorder_contour(c):
     N = len(c)
-
+    if N <= 2:
+        return c
     even_inds = np.arange(0,N,2)
     odd_inds = np.arange(1,N,2)
 
@@ -147,8 +148,8 @@ def resample_image(vtk_im):
     spacing = vtk_im.GetSpacing()
     origin_ = vtk_im.GetOrigin()
 
-    min_ = np.amin(spacing)
-
+    #min_ = np.amin(spacing)
+    min_ = 0.025
     resample.SetInputData(vtk_im)
     for i in range(3):
         resample.SetAxisOutputSpacing(i,min_)
@@ -335,9 +336,17 @@ def interpContour(c,num_pts=15, k=3):
     x = x[inds]
     y = y[inds]
 
-    angles = np.r_[angles[-1]-2, angles, angles[0]+2]
-    x = np.r_[x[-1],x,x[0]]
-    y = np.r_[y[-1],y,y[0]]
+    #angles = np.r_[angles[-1]-2, angles, angles[0]+2]
+    #x = np.r_[x[-1],x,x[0]]
+    #y = np.r_[y[-1],y,y[0]]
+
+    #angles = np.r_[angles[-1]-2, angles]
+    #x = np.r_[x[-1],x]
+    #y = np.r_[y[-1],y]
+
+    angles = angles[1:-1]
+    x = x[1:-1]
+    y = y[1:-1]
 
     x_spline = scipy.interpolate.UnivariateSpline(angles,x,s=0,k=k)
     y_spline = scipy.interpolate.UnivariateSpline(angles,y,s=0,k=k)
@@ -633,7 +642,7 @@ def VTKNumpytoSP(img_):
 
     return sp
 
-def marchingSquares(img, iso=0.0, mode='all'):
+def marchingSquares(img, iso=0.0, mode='center'):
     s = img.shape
     alg = vtk.vtkMarchingSquares()
 
@@ -1017,6 +1026,7 @@ def getImageReslice(img, ext, p, n, x, asnumpy=False):
     reslice.SetResliceAxesOrigin(p[0],p[1],p[2])
 
     delta_min = min(img.GetSpacing())
+    #delta_min = 0.025
     px = delta_min*ext[0]
     py = delta_min*ext[1]
 
@@ -1400,6 +1410,11 @@ def areaOverlapError(truth, edge):
 
     return 1.0-float(Aintersection)/Aunion
 
+def jaccard2d(truth,pred):
+    isct = np.sum(truth*pred)
+    union = np.sum(truth)+np.sum(pred)-isct
+    return 1.0-(1.0*isct)/union
+
 def listAreaOverlapError(Y_pred,Y_truth):
 	'''
 	computes the area overlap error for a list of contours and reference contours
@@ -1477,21 +1492,20 @@ def confusionMatrix(ytrue,ypred, as_fraction=True):
 		H = H/(totals+1e-6)
 		return np.around(H,2)
 
-def get_pds_from_files(folder):
-    files = os.listdir(d)
+def get_pds_from_files(files):
 
     pds = []
     for f in files:
         #print f
         reader = vtk.vtkPolyDataReader()
-        reader.SetFileName(d+'/'+f)
+        reader.SetFileName(f)
         reader.Update()
         o_pd = reader.GetOutput()
         pds.append(o_pd)
 
     return pds
 
-def merge_pds(pd_list):
+def merge_pds(pds):
     assembler = vtk.vtkAppendPolyData()
 
     for p in pds:
@@ -1517,7 +1531,11 @@ def write_pd(pd,fn):
 def pd_to_numpy_vol(pd, spacing=[1.,1.,1.], shape=None, origin=None, foreground_value=255, backgroud_value = 0):
     if shape is None:
         bnds = np.array(pd.GetBounds())
+        print bnds
         shape = np.ceil((bnds[1::2]-bnds[::2])/spacing).astype(int)+15
+        print shape
+        if (shape[0] < 0 or shape[1] < 0 or shape[2] < 0 ):
+            return np.zeros((100,100,100))
     if origin is None:
         origin = bnds[::2]+(bnds[1::2]-bnds[::2])/2
 

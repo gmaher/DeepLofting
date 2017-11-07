@@ -93,8 +93,6 @@
 /home/marsdenlab/datasets/vascular_data/OSMSC0185/OSMSC0185-cm.mha
 /home/marsdenlab/datasets/vascular_data/OSMSC0186/OSMSC0186-cm.mha
 /home/marsdenlab/datasets/vascular_data/OSMSC0187/OSMSC0187-cm.mha
-/home/marsdenlab/datasets/vascular_data/OSMSC0188/OSMSC0188-cm.mha
 /home/marsdenlab/datasets/vascular_data/OSMSC0189/OSMSC0189-cm.mha
-/home/marsdenlab/datasets/vascular_data/cabg10/cabg10-image.mha
 /home/marsdenlab/datasets/vascular_data/cabg11/cabg11-image.mha
 /home/marsdenlab/datasets/vascular_data/cabg5/cabg5-image.mha
