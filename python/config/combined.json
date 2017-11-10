@@ -1,0 +1,5 @@
+{
+  "OUTPUT_PATH":"./results/combined",
+  "PRETRAINED_MODEL_PATH":null,
+  "MODE":"ALL",
+}

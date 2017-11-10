@@ -78,19 +78,29 @@ def gen_groups(test_images,
         print spacing
         grp_files = os.listdir(grp_str)
 
-        group_dict = parseGroupFile(grp_str+'/'+grp_files[0])
-
         path_dict = parsePathFile(path_str)
 
         origin = [-spacing[0]*DIMS[0]/2,spacing[1]*DIMS[1]/2]
 
         for grpid in path_dict.keys():
             print path_dict[grpid]['name']
+            if not os.path.isfile(grp_str+'/'+path_dict[grpid]['name']): continue
+            group_dict = parseGroupFile(grp_str+'/'+path_dict[grpid]['name'])
             tmpimages = []
             pts = path_dict[grpid]['points']
-            for v in pts:
+            for count,v in enumerate(pts):
+                #print count,v,np.amax(group_dict.keys())
+                if count > np.amax(group_dict.keys()): break
                 i =getImageReslice(im,ext,v[:3],v[3:6],v[6:9], True)
                 tmpimages.append(i)
+
+        # for grpid in sorted(group_dict.keys()):
+        #     print group_dict[grpid]['name']
+        #     tmpimages = []
+        #     pts = group_dict[grpid]['points']
+        #     for v in pts:
+        #         i =getImageReslice(im,ext,v[:3],v[3:6],v[6:9], True)
+        #         tmpimages.append(i)
 
             tmpimages = np.asarray(tmpimages)[:,:,:,np.newaxis]
             tmpimages = norm(tmpimages,im)
@@ -105,7 +115,7 @@ def gen_groups(test_images,
             grp_name = path_dict[grpid]['name']
             f = open('{}/{}'.format(pred_dir,grp_name),'w')
 
-            for i in range(0,len(pts),3):
+            for i in range(0,count,3):
                 v = pts[i]
                 c = contours[i]
 

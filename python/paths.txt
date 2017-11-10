@@ -13,6 +13,8 @@
 /home/marsdenlab/datasets/vascular_data/OSMSC0074/0074_0001/0074_0001-cm.paths
 /home/marsdenlab/datasets/vascular_data/OSMSC0078/0078_0001/0078_0001-cm.paths
 /home/marsdenlab/datasets/vascular_data/OSMSC0079/0079_0001/0079_0001-cm.paths
+/home/marsdenlab/datasets/vascular_data/OSMSC0080/0080_0001/0080_0001-cm.paths
+/home/marsdenlab/datasets/vascular_data/OSMSC0082/0082_0001/0082_0001-cm.paths
 /home/marsdenlab/datasets/vascular_data/OSMSC0083/0083_2002/0083_2002-cm.paths
 /home/marsdenlab/datasets/vascular_data/OSMSC0085/0085_1001/0085_1001-cm.paths
 /home/marsdenlab/datasets/vascular_data/OSMSC0087/0087_1001/0087_1001-cm.paths
