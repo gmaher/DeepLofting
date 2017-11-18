@@ -86,8 +86,8 @@ f_val_combined = create_hdf5(val_combined)
 f_test_combined = create_hdf5(test_combined)
 
 
-populate_hdf5(f_train_combined,f_train_ct,f_train_mr)
-populate_hdf5(f_val_combined,f_val_ct,f_val_mr)
+# populate_hdf5(f_train_combined,f_train_ct,f_train_mr)
+# populate_hdf5(f_val_combined,f_val_ct,f_val_mr)
 populate_hdf5(f_test_combined,f_test_ct,f_test_mr)
 
 f_train_combined.close()

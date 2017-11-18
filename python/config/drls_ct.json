@@ -1,0 +1,7 @@
+{
+  "OUTPUT_PATH":"./results/drls_ct",
+  "MODE":"ALL",
+  "SEG_FILE":"/media/marsdenlab/Data2/datasets/DeepLofting/backup/drls_segs_ct.npy",
+  "MODEL_DIR":"/home/marsdenlab/projects/DeepLofting/python/models/i2i_CT/i2i_CT",
+  "TEST_IMAGES":["0004", "0177", "cabg11", "0179", "0144", "0148", "0150", "0119"]
+}

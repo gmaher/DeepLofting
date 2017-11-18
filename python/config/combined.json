@@ -1,5 +1,5 @@
 {
   "OUTPUT_PATH":"./results/combined",
-  "PRETRAINED_MODEL_PATH":null,
   "MODE":"ALL",
+  "TEST_IMAGES":["0006", "0101", "0171", "0178", "0110", "0004", "0177", "cabg11", "0179", "0144", "0148", "0150", "0119"]
 }
